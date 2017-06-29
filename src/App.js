@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const gridHeight = 10;
+const gridWidth = 10;
+
 const typeClasses = {
   wall: 'wall',
   ground: 'ground',
@@ -22,9 +25,31 @@ const typeNumbers = {
   player: 6
 }
 
+const levelOneMap = [
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.wall, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.wall, typeNumbers.ground, typeNumbers.wall, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
+  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground]
+]
+
+createIntialGridState() {
+  
+}
+
 class RogueLike extends Component {
   constructor(props) {
     super(props)
+    this.createIntialGridState = this.createIntialGridState.bind(this);
+    this.state = {grid: this.createIntialGridState()};
+  }
+
+  createIntialGridState() {
 
   }
 
