@@ -74,8 +74,9 @@ class RogueLike extends Component {
     } else if (key === keys.right && playerPosition[1] < gridWidth-1) {
       playerPosition[1] ++;
     }
-
-    this.setState({playerPosition: playerPosition});
+    if(this.state.grid[playerPosition[0]][playerPosition[1]] === typeClasses.ground){
+      this.setState({playerPosition: playerPosition});
+    }
   }
 
   render() {
