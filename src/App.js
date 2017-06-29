@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 const gridHeight = 10;
@@ -25,38 +24,67 @@ const typeNumbers = {
   player: 6
 }
 
+const keys = {
+  up: 38,
+  down: 40,
+  left: 37,
+  right: 39
+}
+
 const levelOneMap = [
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.wall, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.wall, typeNumbers.ground, typeNumbers.wall, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground],
-  [typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground, typeNumbers.ground]
+  [typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.wall, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground],
+  [typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.wall, typeClasses.ground, typeClasses.ground, typeClasses.ground]
 ]
 
-createIntialGridState() {
-  
-}
+const playerStartPosition = [0, 0];
 
 class RogueLike extends Component {
   constructor(props) {
     super(props)
-    this.createIntialGridState = this.createIntialGridState.bind(this);
-    this.state = {grid: this.createIntialGridState()};
+    this.handleInput = this.handleInput.bind(this);
+    this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
+    document.onkeydown = this.handleInput;
+    this.state = {grid: levelOneMap, playerPosition: playerStartPosition};
   }
 
-  createIntialGridState() {
+  handleInput(event) {
+    console.log('key: '+event.keyCode);
+    if(37 <= event.keyCode <= 40) {
+      this.updatePlayerPosition(event.keyCode);
+    }
+  }
 
+  updatePlayerPosition(key) {
+    var playerPosition = this.state.playerPosition.slice();
+
+    if(key === keys.up && playerPosition[0] > 0) {
+      playerPosition[0] --;
+    } else if (key === keys.down && playerPosition[0] < gridHeight-1) {
+      playerPosition[0] ++;
+    } else if (key === keys.left && playerPosition[1] > 0) {
+      playerPosition[1] --;
+    } else if (key === keys.right && playerPosition[1] < gridWidth-1) {
+      playerPosition[1] ++;
+    }
+
+    this.setState({playerPosition: playerPosition});
   }
 
   render() {
     return(
-      <div>
-        <Grid grid={this.state.grid}/>
+      <div className="container">
+        <Grid 
+          grid={this.state.grid}
+          playerPosition={this.state.playerPosition}
+        />
       </div>
     );
   }
@@ -74,10 +102,12 @@ class Grid extends Component {
 
     for (var row = 0; row < currentGrid.length; row++) {
       let divRow = [];
-      for (var column = 0; column < array.length; column++) {
-        divRow.push(<Tile type={currentGrid[row][column].type}/>)
+      for (var column = 0; column < currentGrid[row].length; column++) {
+        let isPlayerPosition = row ===  this.props.playerPosition[0] && column === this.props.playerPosition[1];
+        let classes =  isPlayerPosition ? typeClasses.player : currentGrid[row][column];
+        divRow.push(<Tile key={column+row} type={classes}/>)
       }
-      divRows.push(<div className="row">{divRow}</div>);
+      divRows.push(<div key={row} className="row">{divRow}</div>);
     }
 
     return divRows;
@@ -93,9 +123,13 @@ class Grid extends Component {
 }
 
 class Tile extends Component {
+  constructor(props) {
+    super(props)
+  }
+
   render(){
     return(
-      <div className={"tile " + this.props.class}></div>
+      <div className={"tile " + this.props.type}></div>
     );
   }
 }
