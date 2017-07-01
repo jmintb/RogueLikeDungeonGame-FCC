@@ -37,7 +37,9 @@ const keys = {
 const playerBaseStats = {
   health: 80,
   damage: 30,
-  level: 1
+  level: 1,
+  weapon: 'none',
+  xp: 0
 }
 
 const enemyStats = {
@@ -52,10 +54,10 @@ const weaponTypeDamageMultiplier = {
   mace: 7
 }
 
-const levelXp = {
-  2: 20,
-  3: 60,
-  4: 100
+const levelUpXp = {
+  1: 20,
+  2: 60,
+  3: 100
 }
 
 const levelOneMap = [
@@ -129,6 +131,7 @@ class RogueLike extends Component {
     this.handleInput = this.handleInput.bind(this);
     this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
     this.removeEnemy = this.removeEnemy.bind(this);
+    this.getLevelUpXp = this.getLevelUpXp.bind(this);
     document.onkeydown = this.handleInput;
     var map = convertMapToClasses(levelOneMap);
     this.state = {
@@ -192,9 +195,19 @@ class RogueLike extends Component {
     console.log('restart game');
   }
 
+  getLevelUpXp() {
+    return levelUpXp[this.state.playerStats.level];
+  }
+
   render() {
     return(
       <div className="container">
+        <div className="ui-container">
+          <div className="stat-indicator">Health: {this.state.playerStats.health}</div>
+          <div className="stat-indicator">Damage: {this.state.playerStats.damage}</div>
+          <div className="stat-indicator">Weapon: {this.state.playerStats.weapon}</div>
+          <div className="stat-indicator">Remaining XP: {this.getLevelUpXp() - this.state.playerStats.xp}</div>
+        </div>
         <Grid 
           grid={this.state.grid}
           playerPosition={this.state.playerPosition}
