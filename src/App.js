@@ -54,6 +54,18 @@ const weaponTypeDamageMultipliers = {
   mace: 7
 }
 
+const bossStats = {
+  health: 3000,
+  damage: 200
+}
+
+const mapStats = {
+  enemyCount: 15,
+  healthCount: 8,
+  weaponCount: 4,
+  bossCount: 1
+}
+
 const levelUpXp = {
   1: 20,
   2: 60,
@@ -112,7 +124,7 @@ const playerStartPosition = [0, 0];
 function gettypeClasses(typeNumber) {
   var classes = ''; 
   if(typeNumber === typeNumbers.ground) {
-    classes =  Math.random() < 0.02 ? getRandomClass() : typeClasses.ground;
+    classes = typeClasses.ground;
   } else if(typeNumber === typeNumbers.wall) {
     classes = typeClasses.wall;
   }
@@ -146,6 +158,62 @@ function convertMapToClasses(map) {
   return convertedMap;
 }
 
+function poplateMap(map) {
+  addToMap(map, mapStats.enemyCount, typeClasses.enemy);
+  addToMap(map, mapStats.healthCount, typeClasses.health);
+  addToMap(map, mapStats.weaponCount, typeClasses.weapon);
+  addToMap(map, mapStats.bossCount, typeClasses.boss);
+}
+
+function addToMap(map, typeCount, classes) {
+  for(var count = 0; count < typeCount; count++) {
+    var position = randomPosition(map);
+    map[position[0]][position[1]] = classes;
+  }
+}
+
+function randomPosition(map) {
+  var row = Math.trunc((Math.random() * map.length));
+  var column = Math.trunc((Math.random() * map[0].length));
+  var position = [row, column];
+
+  if(map[row][column] !== typeClasses.ground || isBlockingPath(row, column, map)) {
+    position = randomPosition(map);
+  }
+
+  return position;
+
+}
+
+function isBlockingPath(row, column, map) {
+    var verticalResult = false;
+    var horizontalResult = false;
+
+    //Checks tiles on the top and bottom of position.
+    for(var testRow = row - 1; testRow <= row + 1; testRow++) {
+      if(0 <= testRow && testRow < map.length && testRow !== row) {
+        verticalResult =  map[testRow][column] === typeClasses.ground;
+      }
+
+      if(verticalResult){
+        break;
+      }
+    }
+
+    //Checks tiles on the left and right of position.
+    for(var testColumn = row - 1; testColumn <= column + 1; testColumn++) {
+      if(0 <= testColumn && testColumn < map.length && testColumn !== column) {
+        horizontalResult =  map[row][testColumn] === typeClasses.ground;
+      }
+
+      if(horizontalResult){
+        break;
+      }
+    }
+
+    return verticalResult && horizontalResult;
+  }
+
 function getEnemies(map) {
   var enemies = {};
 
@@ -168,7 +236,7 @@ class RogueLike extends Component {
     super(props)
 
     this.handleInput = this.handleInput.bind(this);
-    this.startInputTimout = this.startInputTimout.bind(this);
+    this.startInputTimeout = this.startInputTimeout.bind(this);
     this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
     this.removeEnemy = this.removeEnemy.bind(this);
     this.getLevelUpXp = this.getLevelUpXp.bind(this);
@@ -177,6 +245,7 @@ class RogueLike extends Component {
     document.onkeydown = this.handleInput;
 
     var map = convertMapToClasses(levelOneMap);
+    poplateMap(map);
     this.state = {
     grid: map, 
     playerPosition: playerStartPosition, 
@@ -203,7 +272,7 @@ class RogueLike extends Component {
     return 37 <= keyCode <= 40
   }
 
-  startInputTimout() {
+  startInputTimeout() {
     this.setState({inputBlocked: true});
       setTimeout(() => {
         this.setState({inputBlocked: false});
@@ -290,6 +359,7 @@ class RogueLike extends Component {
 
   restartGame() {
     var map = convertMapToClasses(levelOneMap);
+    poplateMap(map);
     this.setState({
       grid: map, 
       playerPosition: playerStartPosition, 
