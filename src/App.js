@@ -47,10 +47,10 @@ const enemyStats = {
   damage: 30
 }
 
-const weaponTypeDamageMultiplier = {
+const weaponTypeDamageMultipliers = {
   sword: 10,
   axe: 5,
-  dagger: 2,
+  dagger: 5,
   mace: 7
 }
 
@@ -88,13 +88,27 @@ const levelOneMap = [
 
 const playerStartPosition = [0, 0];
 
-function getTypeClasses(typeNumber) {
+function gettypeClasses(typeNumber) {
   var classes = ''; 
   if(typeNumber === typeNumbers.ground) {
-    classes =  Math.random() < 0.02 ? typeClasses.enemy : typeClasses.ground;
+    classes =  Math.random() < 0.02 ? getRandomClass() : typeClasses.ground;
   } else if(typeNumber === typeNumbers.wall) {
     classes = typeClasses.wall;
   }
+  return classes;
+}
+
+function getRandomClass() {
+  var random = Math.random();
+  var classes;
+  if(random > 0.5) {
+    classes = typeClasses.enemy;
+  } else if(random > 0.25) {
+    classes = typeClasses.health;
+  } else{
+    classes = typeClasses.weapon;
+  }
+
   return classes;
 }
 
@@ -102,7 +116,7 @@ function convertMapToClasses(map) {
   var convertedMap = map.slice();
   for (var row = 0; row < map.length; row++) {
     for (var column = 0; column < map[row].length; column++) {
-      convertedMap[row][column] = getTypeClasses(map[row][column]);
+      convertedMap[row][column] = gettypeClasses(map[row][column]);
     }    
   }
   return convertedMap;
@@ -167,10 +181,16 @@ class RogueLike extends Component {
       playerPosition[1] ++;
     }
 
-    if(this.state.grid[playerPosition[0]][playerPosition[1]] === typeClasses.ground) {
+    var newPositionClass = this.state.grid[playerPosition[0]][playerPosition[1]];
+
+    if(newPositionClass === typeClasses.ground) {
       this.setState({playerPosition: playerPosition});
-    } else if(this.state.grid[playerPosition[0]][playerPosition[1]] === typeClasses.enemy) {
+    } else if(newPositionClass === typeClasses.enemy) {
       this.exchangeAttacks(playerPosition);
+    } else if(newPositionClass === typeClasses.weapon) {
+      this.consumeWeapon(playerPosition);
+    } else if(newPositionClass === typeClasses.health) {
+      this.consumeHealth(playerPosition);
     }
   }
 
@@ -178,11 +198,40 @@ class RogueLike extends Component {
     var enemies = this.state.enemies;
     var enemy = enemies[enemyPosition[0]+','+enemyPosition[1]];
     var playerStats = this.state.playerStats;
-
-    enemy.health -= playerStats.damage;
+    var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
+    enemy.health -= playerStats.damage * damageMultiplier;
     playerStats.health -= enemy.health > 0 ? enemy.damage : 0;
-    console.log('exchange attacks: ' + enemy.health);
     this.setState({enemies: enemies, playerStats: playerStats})   
+  }
+
+  consumeWeapon(position) {
+    var playerStats = this.state.playerStats;
+    var grid = this.state.grid.slice();
+
+    grid[position[0]][position[1]] = typeClasses.ground;
+
+    if(playerStats.level === 1) {
+      playerStats.weapon = 'dagger';
+    } else if(playerStats.level === 2) {
+      playerStats.weapon = 'axe';
+    } else if(playerStats.level === 3) {
+      playerStats.weapon = 'mace';
+    } else if(playerStats.level === 4) {
+      playerStats.weapon = 'sword'
+    }
+
+    this.setState({grid: grid, playerStats: playerStats});
+  }
+
+  consumeHealth(position) {
+    var playerStats = this.state.playerStats;
+    var grid = this.state.grid.slice();
+
+    playerStats.health += playerBaseStats.health * playerStats.level / 2;
+
+    grid[position[0]][position[1]] = typeClasses.ground;
+
+    this.setState({grid: grid, playerStats: playerStats});
   }
 
   removeEnemy(row, column) {
@@ -206,7 +255,7 @@ class RogueLike extends Component {
           <div className="stat-indicator">Health: {this.state.playerStats.health}</div>
           <div className="stat-indicator">Damage: {this.state.playerStats.damage}</div>
           <div className="stat-indicator">Weapon: {this.state.playerStats.weapon}</div>
-          <div className="stat-indicator">Remaining XP: {this.getLevelUpXp() - this.state.playerStats.xp}</div>
+          <div className="stat-indicator">Remaining XP: {levelUpXp[this.state.playerStats.level] - this.state.playerStats.xp}</div>
         </div>
         <Grid 
           grid={this.state.grid}
