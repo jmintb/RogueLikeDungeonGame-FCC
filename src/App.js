@@ -82,8 +82,29 @@ const levelOneMap = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
+  [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+  [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
-
 ]
 
 const playerStartPosition = [0, 0];
@@ -113,12 +134,15 @@ function getRandomClass() {
 }
 
 function convertMapToClasses(map) {
-  var convertedMap = map.slice();
+  var convertedMap = [];
   for (var row = 0; row < map.length; row++) {
+    var convertedMapRow = [];
     for (var column = 0; column < map[row].length; column++) {
-      convertedMap[row][column] = gettypeClasses(map[row][column]);
-    }    
+      convertedMapRow[column] = gettypeClasses(map[row][column]);
+    }
+    convertedMap.push(convertedMapRow);
   }
+
   return convertedMap;
 }
 
@@ -142,30 +166,48 @@ function getEnemies(map) {
 class RogueLike extends Component {
   constructor(props) {
     super(props)
+
     this.handleInput = this.handleInput.bind(this);
+    this.startInputTimout = this.startInputTimout.bind(this);
     this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
     this.removeEnemy = this.removeEnemy.bind(this);
     this.getLevelUpXp = this.getLevelUpXp.bind(this);
+    this.restartGame = this.restartGame.bind(this);
+
     document.onkeydown = this.handleInput;
+
     var map = convertMapToClasses(levelOneMap);
     this.state = {
     grid: map, 
     playerPosition: playerStartPosition, 
     inputBlocked: false, 
     enemies: getEnemies(map),
-    playerStats: playerBaseStats
-    };
+    playerStats: {
+      health: playerBaseStats.health,
+      damage: playerBaseStats.damage,
+      level: playerBaseStats.level,
+      weapon: playerBaseStats.weapon,
+      xp: 0
+    }
+  };
   }
 
   handleInput(event) {
-    if(37 <= event.keyCode <= 40 && !this.state.inputBlocked) {
+    if(this.isArrowKey(event.keyCode) && !this.state.inputBlocked) {
       this.updatePlayerPosition(event.keyCode);
+      this.startInputTimeout();
+    }
+  }
 
-      this.setState({inputBlocked: true});
+  isArrowKey(keyCode) {
+    return 37 <= keyCode <= 40
+  }
+
+  startInputTimout() {
+    this.setState({inputBlocked: true});
       setTimeout(() => {
         this.setState({inputBlocked: false});
       }, 10);
-    }
   }
 
   updatePlayerPosition(key) {
@@ -247,7 +289,20 @@ class RogueLike extends Component {
   }
 
   restartGame() {
-    console.log('restart game');
+    var map = convertMapToClasses(levelOneMap);
+    this.setState({
+      grid: map, 
+      playerPosition: playerStartPosition, 
+      inputBlocked: false, 
+      enemies: getEnemies(map),
+      playerStats: {
+        health: playerBaseStats.health,
+        damage: playerBaseStats.damage,
+        level: playerBaseStats.level,
+        weapon: playerBaseStats.weapon,
+        xp: 0
+      }
+    });
   }
 
   getLevelUpXp() {
@@ -289,7 +344,7 @@ class Grid extends Component {
   createGrid() {
     var currentGrid = this.props.grid;
     var divRows = [];
-
+    
     for (var row = 0; row < currentGrid.length; row++) {
       let divRow = [];
       for (var column = 0; column < currentGrid[row].length; column++) {
@@ -370,7 +425,7 @@ class Player extends Tile {
   }
 
   checkForDeath() {
-    if(this.props.health <= 0) {
+    if(this.props.health <= 0 ) {
       this.props.restartGame();
     }
   }
