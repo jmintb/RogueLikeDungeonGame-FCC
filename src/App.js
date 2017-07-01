@@ -35,7 +35,7 @@ const keys = {
 }
 
 const playerBaseStats = {
-  health: 100,
+  health: 80,
   damage: 30,
   level: 1
 }
@@ -106,17 +106,36 @@ function convertMapToClasses(map) {
   return convertedMap;
 }
 
+function getEnemies(map) {
+  var enemies = {};
+
+  for(var row = 0; row < map.length; row++) {
+    for (var column = 0; column < map[row].length; column++) {
+      if(map[row][column] === 'enemy') {
+        enemies[row+','+column] = {
+          health: enemyStats.health,
+          damage: enemyStats.damage
+        }
+      }
+    }
+  }
+
+  return enemies;
+}
+
 class RogueLike extends Component {
   constructor(props) {
     super(props)
     this.handleInput = this.handleInput.bind(this);
     this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
+    this.removeEnemy = this.removeEnemy.bind(this);
     document.onkeydown = this.handleInput;
+    var map = convertMapToClasses(levelOneMap);
     this.state = {
-    grid: convertMapToClasses(levelOneMap), 
+    grid: map, 
     playerPosition: playerStartPosition, 
     inputBlocked: false, 
-    enemies: {},
+    enemies: getEnemies(map),
     playerStats: playerBaseStats
     };
   }
@@ -148,37 +167,29 @@ class RogueLike extends Component {
     if(this.state.grid[playerPosition[0]][playerPosition[1]] === typeClasses.ground) {
       this.setState({playerPosition: playerPosition});
     } else if(this.state.grid[playerPosition[0]][playerPosition[1]] === typeClasses.enemy) {
-      this.attackEnemy(playerPosition);
+      this.exchangeAttacks(playerPosition);
     }
   }
 
-  attackEnemy(enemyPosition) {
+  exchangeAttacks(enemyPosition) {
     var enemies = this.state.enemies;
+    var enemy = enemies[enemyPosition[0]+','+enemyPosition[1]];
     var playerStats = this.state.playerStats;
-    var enemyId = enemyPosition[0]+','+enemyPosition[1];
 
-    if(!(enemyId in enemies)){
-      enemies[enemyId] = {
-        health: enemyStats.health * (playerStats.level*0.75),
-        damage: enemyStats.damage * (playerStats.level*0.6)
-      }
-      console.log('added enemy ' + JSON.stringify(enemies));
-    }
+    enemy.health -= playerStats.damage;
+    playerStats.health -= enemy.health > 0 ? enemy.damage : 0;
+    console.log('exchange attacks: ' + enemy.health);
+    this.setState({enemies: enemies, playerStats: playerStats})   
+  }
 
-    enemies[enemyId].health -= playerStats.damage;
-    playerStats.health -= enemies[enemyId].damage;
+  removeEnemy(row, column) {
+    let grid = this.state.grid.slice();
+    grid[row][column] = typeClasses.ground;
+    this.setState({grid: grid});
+  }
 
-    console.log('enemyStats: ' + JSON.stringify(enemies.enemyId));
-
-    if(enemies[enemyId].health <= 0) {
-      let grid = this.state.grid.slice();
-
-      delete enemies[enemyId];
-      grid[enemyPosition[0]][enemyPosition[1]] = typeClasses.ground;
-      this.setState({grid: grid, enemies: enemies, playerStats: playerStats});
-    } else {
-      this.setState({enemies: enemies, playerStats: playerStats})
-    }
+  restartGame() {
+    console.log('restart game');
   }
 
   render() {
@@ -187,6 +198,10 @@ class RogueLike extends Component {
         <Grid 
           grid={this.state.grid}
           playerPosition={this.state.playerPosition}
+          playerStats={this.state.playerStats}
+          enemies={this.state.enemies}
+          restartGame={this.restartGame}
+          removeEnemy={this.removeEnemy}
         />
       </div>
     );
@@ -197,6 +212,9 @@ class Grid extends Component {
   constructor(props) {
     super(props);
     this.createGrid = this.createGrid.bind(this);
+    this.generatePlayer = this.generatePlayer.bind(this);
+    this.generateEnemy = this.generateEnemy.bind(this);
+    this.generateTile = this.generateTile.bind(this);
   }
 
   createGrid() {
@@ -208,12 +226,47 @@ class Grid extends Component {
       for (var column = 0; column < currentGrid[row].length; column++) {
         let isPlayerPosition = row ===  this.props.playerPosition[0] && column === this.props.playerPosition[1];
         let classes =  isPlayerPosition ? typeClasses.player : (currentGrid[row][column]);
-        divRow.push(<Tile key={column+row} type={classes}/>)
+        let component;
+        if(isPlayerPosition) {
+          component = this.generatePlayer(row+column, classes);
+        } else if((currentGrid[row][column]) === 'enemy') {
+          component = this.generateEnemy(row, column, classes);
+        } else{
+          component = this.generateTile(row+column, classes);
+        }
+        
+        divRow.push(component);
       }
       divRows.push(<div key={row} className="row">{divRow}</div>);
     }
 
     return divRows;
+  }
+
+  generatePlayer(key, classes) {
+    return <Player 
+            key={key} 
+            type={classes} 
+            health={this.props.playerStats.health}
+            restartGame={this.props.restartGame}
+          /> 
+  }
+
+  generateEnemy(row, column, classes) {
+    return <Enemy
+            key={row+column} 
+            type={classes}
+            position={{row: row, column: column}}
+            health={this.props.enemies[row+','+column].health}
+            removeEnemy={this.props.removeEnemy}
+          />
+  }
+
+  generateTile(key, classes) {
+    return <Tile 
+            key={key} 
+            type={classes}
+          />
   }
 
   render() {
@@ -234,6 +287,40 @@ class Tile extends Component {
     return(
       <div className={"tile " + this.props.type}></div>
     );
+  }
+}
+
+class Player extends Tile {
+ constructor(props) {
+    super(props);
+    this.checkForDeath = this.checkForDeath.bind(this);
+  }
+
+  componentDidUpdate(prevPops, prevState) {
+    this.checkForDeath();
+  }
+
+  checkForDeath() {
+    if(this.props.health <= 0) {
+      this.props.restartGame();
+    }
+  }
+}
+
+class Enemy extends Tile {
+   constructor(props) {
+    super(props);
+    this.checkForDeath = this.checkForDeath.bind(this);
+  }
+
+  componentDidUpdate(prevPops, prevState) {
+    this.checkForDeath();
+  }
+
+  checkForDeath() {
+    if(this.props.health <= 0){
+      this.props.removeEnemy(this.props.position.row, this.props.position.column);
+    }
   }
 }
 
