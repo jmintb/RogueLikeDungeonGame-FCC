@@ -237,7 +237,13 @@ class RogueLike extends Component {
   removeEnemy(row, column) {
     let grid = this.state.grid.slice();
     grid[row][column] = typeClasses.ground;
-    this.setState({grid: grid});
+    var playerStats = this.state.playerStats;
+    playerStats.xp += 10*(playerStats.level * playerStats.level);
+    if(playerStats.xp >= levelUpXp[playerStats.level]) {
+      playerStats.level = playerStats.level < 4 ? playerStats.level + 1 : playerStats.level;
+      playerStats.damage = playerStats.damage*playerStats.level;
+    }
+    this.setState({grid: grid, playerStats: playerStats});
   }
 
   restartGame() {
@@ -253,8 +259,9 @@ class RogueLike extends Component {
       <div className="container">
         <div className="ui-container">
           <div className="stat-indicator">Health: {this.state.playerStats.health}</div>
-          <div className="stat-indicator">Damage: {this.state.playerStats.damage}</div>
+          <div className="stat-indicator">Damage: {this.state.playerStats.damage * weaponTypeDamageMultipliers[this.state.playerStats.weapon]}</div>
           <div className="stat-indicator">Weapon: {this.state.playerStats.weapon}</div>
+          <div className="stat-indicator">Level: {this.state.playerStats.level}</div>
           <div className="stat-indicator">Remaining XP: {levelUpXp[this.state.playerStats.level] - this.state.playerStats.xp}</div>
         </div>
         <Grid 
