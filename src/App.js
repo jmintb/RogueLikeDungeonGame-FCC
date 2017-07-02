@@ -255,7 +255,7 @@ class RogueLike extends Component {
     inputBlocked: false, 
     enemies: getEnemies(map),
     bossHealth: bossStats.health,
-    win: false,
+    hasWon: false,
     playerStats: {
       health: playerBaseStats.health,
       damage: playerBaseStats.damage,
@@ -322,7 +322,7 @@ class RogueLike extends Component {
     var actualEnemyDamage = this.randomNumber(calculatedEnemyDamage * 0.75, calculatedEnemyDamage);
 
     enemy.health -= actualPlayerDamage;
-    playerStats.health -= actualEnemyDamage;
+    playerStats.health -= enemy.health > 0 ? actualEnemyDamage : 0;
 
     this.setState({enemies: enemies, playerStats: playerStats})   
   }
@@ -388,7 +388,7 @@ class RogueLike extends Component {
   }
 
   winGame() {
-    this.setState({win: true});
+    this.setState({hasWon: true});
   }
 
   restartGame() {
@@ -437,6 +437,27 @@ class RogueLike extends Component {
     return remainingXp;
   }
 
+  getMainUi() {
+    var ui;
+
+    if(this.state.hasWon) {
+      ui =<div className="victory-text"> Congrats you have won. </div>
+    } else {
+      ui = <Grid 
+            grid={this.state.grid}
+            playerPosition={this.state.playerPosition}
+            playerStats={this.state.playerStats}
+            bossHealth={this.state.bossHealth}
+            enemies={this.state.enemies}
+            restartGame={this.restartGame}
+            removeEnemy={this.removeEnemy}
+            winGame={this.winGame}
+          />
+    }
+
+    return ui;
+  }
+
   render() {
     return(
       <div className="container">
@@ -447,17 +468,7 @@ class RogueLike extends Component {
           <div className="stat-indicator">Level: {this.state.playerStats.level}</div>
           <div className="stat-indicator">Remaining XP: {this.calculateRemainingXp()}</div>
         </div>
-        {this.get}
-        <Grid 
-          grid={this.state.grid}
-          playerPosition={this.state.playerPosition}
-          playerStats={this.state.playerStats}
-          bossHealth={this.state.bossHealth}
-          enemies={this.state.enemies}
-          restartGame={this.restartGame}
-          removeEnemy={this.removeEnemy}
-          winGame={this.winGame}
-        />
+        {this.getMainUi()}
       </div>
     );
   }
