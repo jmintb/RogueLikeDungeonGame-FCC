@@ -44,7 +44,7 @@ const playerBaseStats = {
 
 const enemyStats = {
   health: 70,
-  damage: 30
+  damage: 20
 }
 
 const weaponTypeDamageMultipliers = {
@@ -55,8 +55,8 @@ const weaponTypeDamageMultipliers = {
 }
 
 const bossStats = {
-  health: 3000,
-  damage: 400
+  health: 5000,
+  damage: 200
 }
 
 const mapStats = {
@@ -255,6 +255,7 @@ class RogueLike extends Component {
     inputBlocked: false, 
     enemies: getEnemies(map),
     bossHealth: bossStats.health,
+    win: false,
     playerStats: {
       health: playerBaseStats.health,
       damage: playerBaseStats.damage,
@@ -317,7 +318,8 @@ class RogueLike extends Component {
     var playerStats = this.state.playerStats;
     var calculatedPlayerDamage = this.calculateDamage();
     var actualPlayerDamage = this.randomNumber(calculatedPlayerDamage * 0.75, calculatedPlayerDamage);
-    var actualEnemyDamage = this.randomNumber(enemy.damage * 0.75, enemy.damage);
+    var calculatedEnemyDamage = enemy.damage * Math.pow(playerStats.level, 1.3);
+    var actualEnemyDamage = this.randomNumber(calculatedEnemyDamage * 0.75, calculatedEnemyDamage);
 
     enemy.health -= actualPlayerDamage;
     playerStats.health -= actualEnemyDamage;
@@ -380,12 +382,13 @@ class RogueLike extends Component {
     if(playerStats.xp >= levelUpXp[playerStats.level]) {
       playerStats.level = playerStats.level < 4 ? playerStats.level + 1 : playerStats.level;
       playerStats.damage = playerStats.damage*playerStats.level;
+      playerStats.health += 100;
     }
     this.setState({grid: grid, playerStats: playerStats});
   }
 
   winGame() {
-    console.log('win game');
+    this.setState({win: true});
   }
 
   restartGame() {
@@ -397,6 +400,7 @@ class RogueLike extends Component {
       inputBlocked: false, 
       enemies: getEnemies(map),
       bossHealth: bossStats.bossHealth,
+      win: false,
       playerStats: {
         health: playerBaseStats.health,
         damage: playerBaseStats.damage,
@@ -443,6 +447,7 @@ class RogueLike extends Component {
           <div className="stat-indicator">Level: {this.state.playerStats.level}</div>
           <div className="stat-indicator">Remaining XP: {this.calculateRemainingXp()}</div>
         </div>
+        {this.get}
         <Grid 
           grid={this.state.grid}
           playerPosition={this.state.playerPosition}
@@ -481,13 +486,13 @@ class Grid extends Component {
           let classes =  isPlayerPosition ? typeClasses.player : (currentGrid[actualRow][actualColumn]);
           let component;
           if(isPlayerPosition) {
-            component = this.generatePlayer(row+column, classes);
+            component = this.generatePlayer(row+','+column, classes);
           } else if((currentGrid[actualRow][actualColumn]) === 'enemy') {
             component = this.generateEnemy(actualRow, actualColumn, classes);
           } else if((currentGrid[actualRow][actualColumn]) === 'boss'){
             component = this.generateBoss(actualRow, actualColumn, classes);
           } else {
-            component = this.generateTile(row+column, classes);
+            component = this.generateTile(row+','+column, classes);
           }
           
           divRow.push(component);
@@ -510,7 +515,7 @@ class Grid extends Component {
 
   generateEnemy(row, column, classes) {
     return <Enemy
-            key={row+column} 
+            key={row+','+column} 
             type={classes}
             position={{row: row, column: column}}
             health={this.props.enemies[row+','+column].health}
@@ -520,7 +525,7 @@ class Grid extends Component {
 
   generateBoss(row, column, classes) {
     return <Boss
-            key={row+column} 
+            key={row+','+column} 
             type={classes}
             position={{row: row, column: column}}
             health={this.props.bossHealth}

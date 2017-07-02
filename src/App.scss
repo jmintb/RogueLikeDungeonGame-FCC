@@ -5,20 +5,21 @@
 }
 
 .ui-container {
-    width: 600px;
+    width: 400px;
     margin: auto;
 }
 
 .stat-indicator {
-    margin: 1px;
-    display: inline;
-    color: cyan;
+    margin: 2px;
+    width: 150px;
+    display: inline-block;
+    color: red;
     border: 1px solid cyan;
 }
 
 .row {
     padding: 1px;
-    width: 600px;
+    width: 140px;
     height: 20px;
     margin: auto;
     padding: 0px; 
