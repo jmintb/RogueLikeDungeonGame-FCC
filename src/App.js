@@ -38,7 +38,7 @@ const playerBaseStats = {
   health: 80,
   damage: 30,
   level: 1,
-  weapon: 'none',
+  weapon: 'stick',
   xp: 0
 }
 
@@ -418,7 +418,7 @@ class RogueLike extends Component {
   calculateDamage() {
     var damage;
 
-    if(this.state.playerStats.weapon === 'none') {
+    if(this.state.playerStats.weapon === 'stick') {
       damage = this.state.playerStats.damage;
     } else {
       damage = this.state.playerStats.damage * weaponTypeDamageMultipliers[this.state.playerStats.weapon];
