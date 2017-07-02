@@ -48,15 +48,15 @@ const enemyStats = {
 }
 
 const weaponTypeDamageMultipliers = {
-  sword: 10,
-  axe: 5,
-  dagger: 5,
-  mace: 7
+  sword: 7,
+  axe: 3,
+  dagger: 1.3,
+  mace: 5
 }
 
 const bossStats = {
   health: 3000,
-  damage: 200
+  damage: 400
 }
 
 const mapStats = {
@@ -237,6 +237,8 @@ class RogueLike extends Component {
 
     this.handleInput = this.handleInput.bind(this);
     this.startInputTimeout = this.startInputTimeout.bind(this);
+    this.calculateDamage = this.calculateDamage.bind(this);
+    this.calculateRemainingXp = this.calculateRemainingXp.bind(this);
     this.updatePlayerPosition = this.updatePlayerPosition.bind(this);
     this.removeEnemy = this.removeEnemy.bind(this);
     this.getLevelUpXp = this.getLevelUpXp.bind(this);
@@ -379,15 +381,37 @@ class RogueLike extends Component {
     return levelUpXp[this.state.playerStats.level];
   }
 
+  calculateDamage() {
+    var damage;
+
+    if(this.state.playerStats.weapon === 'none') {
+      damage = this.state.playerStats.damage;
+    } else {
+      damage = this.state.playerStats.damage * weaponTypeDamageMultipliers[this.state.playerStats.weapon];
+    }
+
+    return damage;
+  }
+
+  calculateRemainingXp() {
+    var remainingXp = 0;
+
+    if(this.state.playerStats.level < 4) {
+      remainingXp = levelUpXp[this.state.playerStats.level] - this.state.playerStats.xp;
+    }
+
+    return remainingXp;
+  }
+
   render() {
     return(
       <div className="container">
         <div className="ui-container">
           <div className="stat-indicator">Health: {this.state.playerStats.health}</div>
-          <div className="stat-indicator">Damage: {this.state.playerStats.damage * weaponTypeDamageMultipliers[this.state.playerStats.weapon]}</div>
+          <div className="stat-indicator">Damage: {this.calculateDamage()}</div>
           <div className="stat-indicator">Weapon: {this.state.playerStats.weapon}</div>
           <div className="stat-indicator">Level: {this.state.playerStats.level}</div>
-          <div className="stat-indicator">Remaining XP: {levelUpXp[this.state.playerStats.level] - this.state.playerStats.xp}</div>
+          <div className="stat-indicator">Remaining XP: {this.calculateRemainingXp()}</div>
         </div>
         <Grid 
           grid={this.state.grid}
