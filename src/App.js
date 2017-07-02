@@ -119,7 +119,7 @@ const levelOneMap = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]
 ]
 
-const playerStartPosition = [0, 0];
+const playerStartPosition = [3, 3];
 
 function gettypeClasses(typeNumber) {
   var classes = ''; 
@@ -327,7 +327,7 @@ class RogueLike extends Component {
     var bossHealth = this.state.bossHealth;
     var playerStats = this.state.playerStats;
     var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
-    
+
     bossHealth -= playerStats.damage * damageMultiplier;
     playerStats.health -= bossHealth > 0 ? bossStats.damage : 0;
 
@@ -463,23 +463,27 @@ class Grid extends Component {
     var currentGrid = this.props.grid;
     var divRows = [];
     
-    for (var row = 0; row < currentGrid.length; row++) {
+    for (var row = -3; row < 4; row++) {
       let divRow = [];
-      for (var column = 0; column < currentGrid[row].length; column++) {
-        let isPlayerPosition = row ===  this.props.playerPosition[0] && column === this.props.playerPosition[1];
-        let classes =  isPlayerPosition ? typeClasses.player : (currentGrid[row][column]);
-        let component;
-        if(isPlayerPosition) {
-          component = this.generatePlayer(row+column, classes);
-        } else if((currentGrid[row][column]) === 'enemy') {
-          component = this.generateEnemy(row, column, classes);
-        } else if((currentGrid[row][column]) === 'boss'){
-          component = this.generateBoss(row, column, classes);
-        } else {
-          component = this.generateTile(row+column, classes);
+      for (var column = -3; column < 4; column++) {
+        let isPlayerPosition = row ===  0 && column === 0;
+        let actualRow = this.props.playerPosition[0] + row;
+        let actualColumn = this.props.playerPosition[1] + column;
+        if(0 <= actualRow && actualRow < currentGrid.length && 0 <= actualColumn && actualColumn < currentGrid[0].length){
+          let classes =  isPlayerPosition ? typeClasses.player : (currentGrid[actualRow][actualColumn]);
+          let component;
+          if(isPlayerPosition) {
+            component = this.generatePlayer(row+column, classes);
+          } else if((currentGrid[actualRow][actualColumn]) === 'enemy') {
+            component = this.generateEnemy(actualRow, actualColumn, classes);
+          } else if((currentGrid[actualRow][actualColumn]) === 'boss'){
+            component = this.generateBoss(actualRow, actualColumn, classes);
+          } else {
+            component = this.generateTile(row+column, classes);
+          }
+          
+          divRow.push(component);
         }
-        
-        divRow.push(component);
       }
       divRows.push(<div key={row} className="row">{divRow}</div>);
     }
@@ -507,7 +511,6 @@ class Grid extends Component {
   }
 
   generateBoss(row, column, classes) {
-    console.log('generate boss');
     return <Boss
             key={row+column} 
             type={classes}
@@ -590,6 +593,7 @@ class Boss extends Tile {
   }
 
   checkForDeath() {
+    console.log('check for death');
     if(this.props.health <= 0){
       this.props.winGame(this.props.position.row, this.props.position.column);
     }
