@@ -315,21 +315,29 @@ class RogueLike extends Component {
     var enemies = this.state.enemies;
     var enemy = enemies[enemyPosition[0]+','+enemyPosition[1]];
     var playerStats = this.state.playerStats;
-    var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
+    var calculatedPlayerDamage = this.calculateDamage();
+    var actualPlayerDamage = this.randomNumber(calculatedPlayerDamage * 0.75, calculatedPlayerDamage);
+    var actualEnemyDamage = this.randomNumber(enemy.damage * 0.75, enemy.damage);
 
-    enemy.health -= playerStats.damage * damageMultiplier;
-    playerStats.health -= enemy.health > 0 ? enemy.damage : 0;
+    enemy.health -= actualPlayerDamage;
+    playerStats.health -= actualEnemyDamage;
 
     this.setState({enemies: enemies, playerStats: playerStats})   
+  }
+
+  randomNumber(min, max) {
+    return Math.trunc(Math.random() * (max - min) + min);
   }
 
   exchangeAttacksWithBoss() {
     var bossHealth = this.state.bossHealth;
     var playerStats = this.state.playerStats;
-    var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
+    var calculatedPlayerDamage = this.calculateDamage();
+    var actualPlayerDamage = this.randomNumber(calculatedPlayerDamage * 0.75, calculatedPlayerDamage);
+    var actualBossDamage = this.randomNumber(bossStats.damage * 0.75, bossStats.damage);
 
-    bossHealth -= playerStats.damage * damageMultiplier;
-    playerStats.health -= bossHealth > 0 ? bossStats.damage : 0;
+    bossHealth -= actualPlayerDamage;
+    playerStats.health -= actualBossDamage;
 
     this.setState({bossHealth: bossHealth, playerStats: playerStats});
   }
