@@ -243,6 +243,7 @@ class RogueLike extends Component {
     this.removeEnemy = this.removeEnemy.bind(this);
     this.getLevelUpXp = this.getLevelUpXp.bind(this);
     this.restartGame = this.restartGame.bind(this);
+    this.winGame = this.winGame.bind(this);
 
     document.onkeydown = this.handleInput;
 
@@ -253,6 +254,7 @@ class RogueLike extends Component {
     playerPosition: playerStartPosition, 
     inputBlocked: false, 
     enemies: getEnemies(map),
+    bossHealth: bossStats.health,
     playerStats: {
       health: playerBaseStats.health,
       damage: playerBaseStats.damage,
@@ -300,6 +302,8 @@ class RogueLike extends Component {
       this.setState({playerPosition: playerPosition});
     } else if(newPositionClass === typeClasses.enemy) {
       this.exchangeAttacks(playerPosition);
+    } else if(newPositionClass === typeClasses.boss) {
+      this.exchangeAttacksWithBoss();
     } else if(newPositionClass === typeClasses.weapon) {
       this.consumeWeapon(playerPosition);
     } else if(newPositionClass === typeClasses.health) {
@@ -312,9 +316,22 @@ class RogueLike extends Component {
     var enemy = enemies[enemyPosition[0]+','+enemyPosition[1]];
     var playerStats = this.state.playerStats;
     var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
+
     enemy.health -= playerStats.damage * damageMultiplier;
     playerStats.health -= enemy.health > 0 ? enemy.damage : 0;
+
     this.setState({enemies: enemies, playerStats: playerStats})   
+  }
+
+  exchangeAttacksWithBoss() {
+    var bossHealth = this.state.bossHealth;
+    var playerStats = this.state.playerStats;
+    var damageMultiplier = weaponTypeDamageMultipliers[playerStats.weapon] === undefined ? 1 : weaponTypeDamageMultipliers[playerStats.weapon];
+    
+    bossHealth -= playerStats.damage * damageMultiplier;
+    playerStats.health -= bossHealth > 0 ? bossStats.damage : 0;
+
+    this.setState({bossHealth: bossHealth, playerStats: playerStats});
   }
 
   consumeWeapon(position) {
@@ -359,6 +376,10 @@ class RogueLike extends Component {
     this.setState({grid: grid, playerStats: playerStats});
   }
 
+  winGame() {
+    console.log('win game');
+  }
+
   restartGame() {
     var map = convertMapToClasses(levelOneMap);
     poplateMap(map);
@@ -367,6 +388,7 @@ class RogueLike extends Component {
       playerPosition: playerStartPosition, 
       inputBlocked: false, 
       enemies: getEnemies(map),
+      bossHealth: bossStats.bossHealth,
       playerStats: {
         health: playerBaseStats.health,
         damage: playerBaseStats.damage,
@@ -417,9 +439,11 @@ class RogueLike extends Component {
           grid={this.state.grid}
           playerPosition={this.state.playerPosition}
           playerStats={this.state.playerStats}
+          bossHealth={this.state.bossHealth}
           enemies={this.state.enemies}
           restartGame={this.restartGame}
           removeEnemy={this.removeEnemy}
+          winGame={this.winGame}
         />
       </div>
     );
@@ -449,7 +473,9 @@ class Grid extends Component {
           component = this.generatePlayer(row+column, classes);
         } else if((currentGrid[row][column]) === 'enemy') {
           component = this.generateEnemy(row, column, classes);
-        } else{
+        } else if((currentGrid[row][column]) === 'boss'){
+          component = this.generateBoss(row, column, classes);
+        } else {
           component = this.generateTile(row+column, classes);
         }
         
@@ -477,6 +503,17 @@ class Grid extends Component {
             position={{row: row, column: column}}
             health={this.props.enemies[row+','+column].health}
             removeEnemy={this.props.removeEnemy}
+          />
+  }
+
+  generateBoss(row, column, classes) {
+    console.log('generate boss');
+    return <Boss
+            key={row+column} 
+            type={classes}
+            position={{row: row, column: column}}
+            health={this.props.bossHealth}
+            winGame={this.props.winGame}
           />
   }
 
@@ -538,6 +575,23 @@ class Enemy extends Tile {
   checkForDeath() {
     if(this.props.health <= 0){
       this.props.removeEnemy(this.props.position.row, this.props.position.column);
+    }
+  }
+}
+
+class Boss extends Tile {
+   constructor(props) {
+    super(props);
+    this.checkForDeath = this.checkForDeath.bind(this);
+  }
+
+  componentDidUpdate(prevPops, prevState) {
+    this.checkForDeath();
+  }
+
+  checkForDeath() {
+    if(this.props.health <= 0){
+      this.props.winGame(this.props.position.row, this.props.position.column);
     }
   }
 }
