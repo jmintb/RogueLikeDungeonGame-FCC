@@ -47,6 +47,10 @@ const enemyStats = {
   damage: 20
 }
 
+const enemyHealth = (lvl, hp) => {
+  return Math.trunc(hp * Math.pow(lvl, 1.3));
+}
+
 const weaponTypeDamageMultipliers = {
   sword: 7,
   axe: 3,
@@ -55,8 +59,8 @@ const weaponTypeDamageMultipliers = {
 }
 
 const bossStats = {
-  health: 5000,
-  damage: 200
+  health: 8000,
+  damage: 400
 }
 
 const mapStats = {
@@ -248,6 +252,11 @@ class RogueLike extends Component {
     this.onEnemyKilled = this.onEnemyKilled.bind(this);
     this.restartGame = this.restartGame.bind(this);
     this.winGame = this.winGame.bind(this);
+    this.preformAction = this.preformAction.bind(this);
+    this.exchangeAttacksWithEnemy = this.exchangeAttacksWithEnemy.bind(this);
+    this.exchangeAttacksWithBoss = this.exchangeAttacksWithBoss.bind(this);
+    this.consumeHealth = this.consumeHealth.bind(this);
+    this.consumeWeapon = this.consumeWeapon.bind(this);
 
     document.onkeydown = this.handleInput;
 
@@ -274,14 +283,10 @@ class RogueLike extends Component {
 
   handleInput(event) {
     if(this.isArrowKey(event.keyCode) && !this.state.inputBlocked) {
-      var playerPosition = this.state.playerPosition;
-
-      playerPosition = this.getNewPlayerPosition(event.keyCode);
-
+      var playerPosition = this.getNewPlayerPosition(event.keyCode);
       if(this.isHittingSomething(playerPosition)) {
         this.preformAction(playerPosition)
       } else {
-        console.log('move player');
         this.setState({
           playerPosition: playerPosition
         });
@@ -303,7 +308,6 @@ class RogueLike extends Component {
     } else if (key === keys.right && position[1] < this.state.map[0].length-1) {
       position[1] ++;
     }
-
     return position;
   }
 
@@ -318,15 +322,15 @@ class RogueLike extends Component {
   preformAction(position) {
     switch(this.getClassFromPosition(position)){
       case typeClasses.health:
-        this.consumeHealth();
+        this.consumeHealth(position);
         break;
 
       case typeClasses.weapon:
-        this.consumeWeapon();
+        this.consumeWeapon(position);
         break;
 
       case typeClasses.enemy:
-        this.exchangeAttackWithEnemy();
+        this.exchangeAttacksWithEnemy(position);
         break;
 
       case typeClasses.boss:
@@ -354,9 +358,9 @@ class RogueLike extends Component {
 
   exchangeAttacksWithEnemy(enemyPosition) {
     var enemy = this.state.enemies[enemyPosition[0]+','+enemyPosition[1]];
-    var enemyDamage = this.actualDamage(enemy.damage * Math.pow(this.playerStats.level, 1.3));
+    var enemyDamage = this.actualDamage(enemy.damage * Math.pow(this.state.playerStats.level, 1.3));
     var playerStats = this.state.playerStats;
-
+    console.log('enemy health: ' + enemy.health);
     enemy.health -= this.actualDamage(this.calculatePlayerDamage());
     playerStats.health -= enemy.health > 0 ? enemyDamage : 0;
 
@@ -417,23 +421,32 @@ class RogueLike extends Component {
   }
 
   onEnemyKilled(row, column) {
-    let map = this.state.map.slice();
-    let playerStats = this.state.playerStats;
+    var map = this.state.map.slice();
+    var playerStats = this.state.playerStats;
+    var newState = {
+      map: map,
+      playerStats: playerStats
+    };
 
     this.removeObjectFromMap([row, column], map);
-    this.incrementPlayerXp(playerStats);
-   
-    this.setState({map: map, playerStats: playerStats});
-  }
-
-  incrementPlayerXp(playerStats) {
+  
     playerStats.xp += 10*(playerStats.level * playerStats.level);
-
     if(this.levelUp(playerStats)) {
+      var enemies = this.state.enemies;
+
       playerStats.level = playerStats.level < 4 ? playerStats.level + 1 : playerStats.level;
       playerStats.damage = playerStats.damage*playerStats.level;
       playerStats.health += 100;
+
+      Object.entries(enemies).forEach(
+        ([key, value]) => value.health = enemyHealth(playerStats.level, value.health)
+      );
+
+      newState.enemies = enemies;
+
     }
+
+    this.setState(newState);
   }
 
   levelUp(stats) {
@@ -533,26 +546,25 @@ class VisibleGrid extends Component {
   }
 
   createGrid() {
-    var visibleGridWidth = 6;
+    var visibleGridWidth = 7;
     var map = this.props.map;
     var grid = [];
-    processMatrix(map, [map.length, map[0].length], (row, column, rowArray) => {
-       let isPlayerPosition = row ===  0 && column === 0;
-        let actualRow = this.props.playerPosition[0] + row;
-        let actualColumn = this.props.playerPosition[1] + column;
+    processMatrix(grid, [visibleGridWidth, visibleGridWidth], (row, column, rowArray) => {
+        let isPlayerPosition = row ===  3 && column === 3;
+        let actualRow = this.props.playerPosition[0] + row - 3;
+        let actualColumn = this.props.playerPosition[1] + column - 3;
         if(0 <= actualRow && actualRow < map.length && 0 <= actualColumn && actualColumn < map[0].length){
           let classes =  isPlayerPosition ? typeClasses.player : (map[actualRow][actualColumn]);
           let component;
           if(isPlayerPosition) {
-            component = this.generatePlayer(row+','+column, classes);
+            component = this.generatePlayer(actualRow+','+actualColumn, classes);
           } else if((map[actualRow][actualColumn]) === 'enemy') {
             component = this.generateEnemy(actualRow, actualColumn, classes);
           } else if((map[actualRow][actualColumn]) === 'boss'){
             component = this.generateBoss(actualRow, actualColumn, classes);
           } else {
-            component = this.generateTile(row+','+column, classes);
+            component = this.generateTile(actualRow+','+actualColumn, classes);
           }
-          console.log('tile: ' + JSON.stringify(component));
           rowArray.push(component);
         }
     }, (rowArray, rowIndex, matrix) => {      
@@ -576,7 +588,7 @@ class VisibleGrid extends Component {
             type={classes}
             position={{row: row, column: column}}
             health={this.props.enemies[row+','+column].health}
-            removeEnemy={this.props.removeEnemy}
+            onEnemyKilled={this.props.onEnemyKilled}
           />
   }
 
@@ -647,7 +659,7 @@ class Enemy extends Tile {
 
   checkForDeath() {
     if(this.props.health <= 0){
-      this.props.removeEnemy(this.props.position.row, this.props.position.column);
+      this.props.onEnemyKilled(this.props.position.row, this.props.position.column);
     }
   }
 }
